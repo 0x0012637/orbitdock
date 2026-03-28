@@ -89,7 +89,7 @@ See [FEATURES.md](docs/FEATURES.md) for the full list.
 ### 1. Install the server
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Robdel12/OrbitDock/main/orbitdock-server/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/0x0012637/orbitdock/main/orbitdock-server/install.sh | bash
 ```
 
 The installer sets up the binary, shell `PATH`, data directory, and database. It then asks whether
@@ -113,7 +113,7 @@ and more. If something's wrong, it'll tell you.
 
 ### 3. Open the app
 
-Download from [Releases](https://github.com/Robdel12/OrbitDock/releases) and run it.
+Download from [Releases](https://github.com/0x0012637/orbitdock/releases) and run it.
 
 Want to try the latest iOS build without compiling it yourself? Join the
 [OrbitDock TestFlight](https://testflight.apple.com/join/w4jThqxE).
@@ -121,8 +121,8 @@ Want to try the latest iOS build without compiling it yourself? Join the
 Or build from source:
 
 ```bash
-git clone https://github.com/Robdel12/OrbitDock.git
-cd OrbitDock
+git clone https://github.com/0x0012637/orbitdock.git
+cd orbitdock
 make build
 ```
 
