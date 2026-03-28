@@ -24,8 +24,8 @@ pub enum RestResult<T> {
 impl RestClient {
   pub fn new(config: &ClientConfig) -> Self {
     let client = reqwest::Client::builder()
-      .connect_timeout(std::time::Duration::from_secs(3))
-      .timeout(std::time::Duration::from_secs(10))
+      .connect_timeout(std::time::Duration::from_secs(5))
+      .timeout(std::time::Duration::from_secs(120))
       .build()
       .expect("failed to build HTTP client");
 

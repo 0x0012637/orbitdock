@@ -1231,7 +1231,7 @@ impl ClaudeConnector {
     };
     self.write_stdin_message(&msg).await?;
 
-    match tokio::time::timeout(std::time::Duration::from_secs(30), rx).await {
+    match tokio::time::timeout(std::time::Duration::from_secs(90), rx).await {
       Ok(Ok(val)) => Ok(val),
       Ok(Err(_)) => {
         self.pending_controls.lock().await.remove(&id);
@@ -1242,7 +1242,7 @@ impl ClaudeConnector {
       Err(_) => {
         self.pending_controls.lock().await.remove(&id);
         Err(ConnectorError::ProviderError(
-          "Control request timed out after 30s".into(),
+          "Control request timed out after 90s".into(),
         ))
       }
     }
