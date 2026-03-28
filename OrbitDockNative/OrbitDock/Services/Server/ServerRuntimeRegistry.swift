@@ -495,7 +495,10 @@ final class ServerRuntimeRegistry {
   }
 
   func handleMemoryPressure() {
-    // Stub: memory pressure handling
+    for runtime in runtimesByEndpointId.values {
+      runtime.sessionStore.handleMemoryPressure()
+      runtime.clients.imageLoader.clearAll()
+    }
   }
 
   func stopAllRuntimes() {
@@ -800,7 +803,7 @@ final class ServerRuntimeRegistry {
         self.sessionsAggregationGeneration &+= 1
         let generation = self.sessionsAggregationGeneration
         let sessionsByEndpoint = self.sessionsByEndpoint
-        Task { [weak self] in
+        Task(priority: .utility) { [weak self] in
           guard let self else { return }
           let aggregated = await self.aggregationWorker.sortedSessions(from: sessionsByEndpoint)
           guard generation == self.sessionsAggregationGeneration else { return }
@@ -813,7 +816,7 @@ final class ServerRuntimeRegistry {
         self.dashboardAggregationGeneration &+= 1
         let generation = self.dashboardAggregationGeneration
         let dashboardConversationsByEndpoint = self.dashboardConversationsByEndpoint
-        Task { [weak self] in
+        Task(priority: .utility) { [weak self] in
           guard let self else { return }
           let aggregated = await self.aggregationWorker
             .sortedDashboardConversations(from: dashboardConversationsByEndpoint)
@@ -827,7 +830,7 @@ final class ServerRuntimeRegistry {
         self.missionsAggregationGeneration &+= 1
         let generation = self.missionsAggregationGeneration
         let missionsByEndpoint = self.missionsByEndpoint
-        Task { [weak self] in
+        Task(priority: .utility) { [weak self] in
           guard let self else { return }
           let aggregated = await self.aggregationWorker.sortedMissions(from: missionsByEndpoint)
           guard generation == self.missionsAggregationGeneration else { return }

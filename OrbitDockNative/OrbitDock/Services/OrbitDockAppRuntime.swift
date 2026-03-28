@@ -12,6 +12,7 @@ final class OrbitDockAppRuntime {
   let startupCoordinator: ClientStartupCoordinator
   let demoExperience: DemoModeExperience
   var isDemoModeEnabled = false
+  @ObservationIgnored private var memoryPressureSource: (any DispatchSourceMemoryPressure)?
 
   init() {
     let runtimeRegistry = ServerRuntimeRegistry()
@@ -30,7 +31,22 @@ final class OrbitDockAppRuntime {
   func startIfNeeded() async {
     notificationCoordinator.startIfNeeded()
     focusTracker.startObserving()
+    startMemoryPressureMonitoring()
     await startupCoordinator.startIfNeeded()
+  }
+
+  private func startMemoryPressureMonitoring() {
+    let source = DispatchSource.makeMemoryPressureSource(
+      eventMask: [.warning, .critical],
+      queue: .main
+    )
+    source.setEventHandler { [weak self] in
+      Task { @MainActor [weak self] in
+        self?.runtimeRegistry.handleMemoryPressure()
+      }
+    }
+    source.resume()
+    memoryPressureSource = source
   }
 
   func enterDemoMode() {

@@ -184,7 +184,7 @@ final class ServerConnection {
 
   private static let maxInboundBytes = 8 * 1_024 * 1_024
   private static let stableConnectionThreshold: TimeInterval = 30
-  private static let keepAliveInterval: TimeInterval = 30
+  private static let keepAliveInterval: TimeInterval = 60
 
   var isRemote: Bool {
     guard let host = serverURL?.host else { return false }

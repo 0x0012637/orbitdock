@@ -19,8 +19,12 @@ final class ImageLoader: Sendable {
 
   init(conversationClient: ConversationClient) {
     self.conversationClient = conversationClient
-    cache.countLimit = 100
-    cache.totalCostLimit = 50 * 1_024 * 1_024 // 50 MB
+    cache.countLimit = 30
+    cache.totalCostLimit = 20 * 1_024 * 1_024 // 20 MB
+  }
+
+  func clearAll() {
+    cache.removeAllObjects()
   }
 
   /// Synchronous cache lookup — returns immediately if cached, nil otherwise.
