@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS LaunchAgent for the OrbitDock server daemon.
+
+  Resource caps applied:
+    • Nice 20            → lowest CPU scheduling priority
+    • ProcessType        → Background  (QoS tier: background)
+    • LowPriorityIO      → I/O throttled to best-effort
+    • LowPriorityBackgroundIO → same for background I/O
+    • MemoryLock 0       → no mlocked pages (prevents RAM pinning)
+    • ThrottleInterval 10 → restart back-off (seconds)
+    • MallocNanoZone 0   → disables nano-zone allocator (less fragmentation)
+
+  Install:
+    cp scripts/com.orbitdock.server.plist ~/Library/LaunchAgents/
+    # Set ORBITDOCK_AUTH_TOKEN in the plist (or export via a secrets manager)
+    launchctl load ~/Library/LaunchAgents/com.orbitdock.server.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.orbitdock.server.plist
+    rm ~/Library/LaunchAgents/com.orbitdock.server.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.orbitdock.server</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/x/.orbitdock/bin/orbitdock</string>
+        <string>start</string>
+        <string>--bind</string>
+        <string>0.0.0.0:4000</string>
+        <string>--data-dir</string>
+        <string>/Users/x/.orbitdock</string>
+        <string>--no-web</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/x/.orbitdock/bin</string>
+        <key>ORBITDOCK_CODEX_PATH</key>
+        <string>/opt/homebrew/bin/codex</string>
+        <key>CLAUDE_BIN</key>
+        <string>/opt/homebrew/bin/claude</string>
+        <key>ORBITDOCK_AUTH_TOKEN</key>
+        <string>{{ORBITDOCK_AUTH_TOKEN}}</string>
+        <key>MallocNanoZone</key>
+        <string>0</string>
+    </dict>
+
+    <!-- ── CPU cap ─────────────────────────────────────────── -->
+    <key>Nice</key>
+    <integer>20</integer>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <!-- ── I/O cap ────────────────────────────────────────── -->
+    <key>LowPriorityIO</key>
+    <true/>
+    <key>LowPriorityBackgroundIO</key>
+    <true/>
+
+    <!-- ── Memory cap ────────────────────────────────────── -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>MemoryLock</key>
+        <integer>0</integer>
+    </dict>
+    <key>HardResourceLimits</key>
+    <dict>
+        <key>MemoryLock</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- ── Lifecycle ─────────────────────────────────────── -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/x/.orbitdock/logs/launchd-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/x/.orbitdock/logs/launchd-stderr.log</string>
+</dict>
+</plist>
