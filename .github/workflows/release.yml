@@ -341,7 +341,7 @@ jobs:
           sandbox: read-only
 
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-notes
           path: |
@@ -399,7 +399,7 @@ jobs:
         run: make ${{ matrix.package_target }}
 
       - name: Upload server artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: server-${{ matrix.target }}
           path: |
