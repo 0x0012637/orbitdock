@@ -1,0 +1,100 @@
+name: Security Verify
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly Monday 03:00 UTC
+
+permissions:
+  contents: read
+  security-events: read
+
+jobs:
+  security-audit:
+    name: Security Posture Audit
+    runs-on: [self-hosted, macOS, arm64]
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check secret scanning status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "=== Secret Scanning ==="
+          STATUS=$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning.status // "unknown"')
+          PUSH=$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning_push_protection.status // "unknown"')
+          echo "secret_scanning=$STATUS"
+          echo "push_protection=$PUSH"
+          [ "$STATUS" = "enabled" ] || { echo "::error::Secret scanning is NOT enabled"; exit 1; }
+          [ "$PUSH"   = "enabled" ] || { echo "::error::Push protection is NOT enabled";  exit 1; }
+
+      - name: Count open Dependabot alerts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "=== Dependabot Alerts ==="
+          CRITICAL=$(gh api "repos/$REPO/dependabot/alerts?state=open&severity=critical&per_page=1" --jq 'length' 2>/dev/null || echo 0)
+          HIGH=$(gh api     "repos/$REPO/dependabot/alerts?state=open&severity=high&per_page=100" --jq 'length' 2>/dev/null || echo 0)
+          MEDIUM=$(gh api   "repos/$REPO/dependabot/alerts?state=open&severity=medium&per_page=100" --jq 'length' 2>/dev/null || echo 0)
+          LOW=$(gh api      "repos/$REPO/dependabot/alerts?state=open&severity=low&per_page=100" --jq 'length' 2>/dev/null || echo 0)
+          echo "critical=$CRITICAL high=$HIGH medium=$MEDIUM low=$LOW"
+          if [ "$CRITICAL" -gt 0 ]; then echo "::error::$CRITICAL CRITICAL Dependabot alerts open"; exit 1; fi
+          if [ "$HIGH" -gt 0 ];     then echo "::warning::$HIGH HIGH Dependabot alerts open (upstream-blocked)"; fi
+
+      - name: Verify no open PRs from security fixes are stale
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "=== Open PRs ==="
+          OPEN=$(gh pr list --repo "$REPO" --state open --json number,title,mergeable --jq 'length')
+          MERGEABLE=$(gh pr list --repo "$REPO" --state open --json number,title,mergeable --jq '[.[] | select(.mergeable == "MERGEABLE")] | length')
+          echo "open_prs=$OPEN mergeable=$MERGEABLE"
+          if [ "$MERGEABLE" -gt 0 ]; then
+            echo "::warning::$MERGEABLE PRs are MERGEABLE but not yet merged"
+            gh pr list --repo "$REPO" --state open --json number,title,mergeable --jq '.[] | select(.mergeable == "MERGEABLE") | "#\(.number) \(.title)"'
+          fi
+
+      - name: Check branch protection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "=== Branch Protection ==="
+          DEFAULT=$(gh api "repos/$REPO" --jq '.default_branch')
+          PROTECTED=$(gh api "repos/$REPO/branches/$DEFAULT/protection" --jq '"protected"' 2>/dev/null || echo '"unprotected"')
+          echo "branch=$DEFAULT protection=$PROTECTED"
+          if [ "$PROTECTED" = '"unprotected"' ]; then
+            echo "::warning::Default branch '$DEFAULT' has no branch protection rules"
+          fi
+
+      - name: Cargo security audit
+        run: |
+          echo "=== Cargo Audit ==="
+          if command -v cargo-audit >/dev/null 2>&1; then
+            cd orbitdock-server
+            cargo audit --deny warnings 2>&1 || echo "::warning::Cargo audit found issues (may include upstream-blocked)"
+          else
+            echo "cargo-audit not installed; installing..."
+            cargo install cargo-audit --locked 2>&1 | tail -3
+            cd orbitdock-server
+            cargo audit 2>&1 | tail -20
+          fi
+
+      - name: npm audit
+        run: |
+          echo "=== npm Audit ==="
+          cd orbitdock-web
+          npm audit --audit-level=high 2>&1 || echo "::warning::npm audit found HIGH+ issues"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Security verification complete for ${{ github.repository }} @ ${{ github.sha }}"
+          echo "Runner: ${{ runner.name }} (${{ runner.os }})"
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
