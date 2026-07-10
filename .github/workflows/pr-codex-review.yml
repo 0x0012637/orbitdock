@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout PR merge commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
           fetch-depth: 0
@@ -87,7 +87,7 @@ jobs:
 
       - name: Run Codex review
         id: run_codex
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@v1.11
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: codex-pr-review-prompt.md
@@ -97,7 +97,7 @@ jobs:
 
       - name: Post review comment
         if: steps.run_codex.outputs.final-message != ''
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         env:
           CODEX_FINAL_MESSAGE: ${{ steps.run_codex.outputs.final-message }}
         with:
