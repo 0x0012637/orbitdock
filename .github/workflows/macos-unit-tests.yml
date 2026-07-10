@@ -1,10 +1,11 @@
 name: macOS Unit Tests
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches: [main]
+    branches: [main, v0.7.0-patched]
   push:
-    branches: [main]
+    branches: [main, v0.7.0-patched]
 
 permissions:
   contents: read
