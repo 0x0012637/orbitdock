@@ -29,8 +29,8 @@ tokio = { version = "1", features = ["full"] }
 
 # Web framework
 axum = { version = "0.8", features = ["ws"] }
-axum-server = { version = "0.7", features = ["tls-rustls"] }
-tower-http = { version = "0.6", features = ["cors", "trace", "set-header"] }
+axum-server = { version = "0.8", features = ["tls-rustls"] }
+tower-http = { version = "0.7", features = ["cors", "trace", "set-header"] }
 rust-embed = "8"
 
 # Serialization
@@ -57,15 +57,15 @@ thiserror = "2"
 anyhow = "1"
 futures = "0.3"
 bytes = "1"
-notify = "7"
+notify = "8"
 arc-swap = "1.9"
 dashmap = "6"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
 clap = { version = "4", features = ["derive", "env"] }
 dirs = "6"
 libc = "0.2"
 qrcode = "0.14"
-similar = "2"
+similar = "3"
 liquid = "0.26"
 serde_yaml = "0.9"
 chrono = { version = "0.4", features = ["serde"] }
