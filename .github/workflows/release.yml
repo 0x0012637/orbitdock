@@ -92,7 +92,7 @@ jobs:
       build_server_assets: ${{ steps.compute.outputs.build_server_assets }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
 
@@ -265,7 +265,7 @@ jobs:
       BUILD_SERVER_ASSETS: ${{ needs.metadata.outputs.build_server_assets }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
 
@@ -331,7 +331,7 @@ jobs:
           EOF
 
       - name: Generate release notes
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@v1.11
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: dist/release-notes-prompt.md
@@ -341,7 +341,7 @@ jobs:
           sandbox: read-only
 
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: release-notes
           path: |
@@ -373,10 +373,10 @@ jobs:
       CARGO_PROFILE_RELEASE_CODEGEN_UNITS: "16"
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@v1
 
       - name: Install native dependencies
         if: ${{ startsWith(matrix.target, 'linux') }}
@@ -385,7 +385,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends pkg-config libcap-dev
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: 22
           cache: npm
@@ -399,7 +399,7 @@ jobs:
         run: make ${{ matrix.package_target }}
 
       - name: Upload server artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: server-${{ matrix.target }}
           path: |
@@ -422,7 +422,7 @@ jobs:
       PUBLISH_RELEASE: ${{ needs.metadata.outputs.publish_release }}
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v8.0.1
         with:
           path: dist
           merge-multiple: true
