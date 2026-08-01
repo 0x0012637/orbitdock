@@ -46,7 +46,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-appender = "0.2"
 
 # Encoding
-base64 = "0.22"
+base64 = "0.23"
 
 # Crypto
 ring = "0.17"
