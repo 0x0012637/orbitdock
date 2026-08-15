@@ -35,7 +35,7 @@ jobs:
       # automatic pruning of stale artifacts. Keyed off Cargo.lock so
       # routine PRs that don't change deps get near-instant restores.
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2.9.1
+        uses: Swatinem/rust-cache@v2.9.2
         with:
           workspaces: "orbitdock-server -> ../.cache/rust/target"
           # Include workflow + Makefile in the key so cache busts on CI
