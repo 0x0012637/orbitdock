@@ -331,7 +331,7 @@ jobs:
           EOF
 
       - name: Generate release notes
-        uses: openai/codex-action@v1.11
+        uses: openai/codex-action@v1.12
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: dist/release-notes-prompt.md
