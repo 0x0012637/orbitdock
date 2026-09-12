@@ -22,7 +22,7 @@ dirs = { workspace = true }
 anyhow = { workspace = true }
 base64 = { workspace = true }
 tokio-tungstenite = { version = "0.26", features = ["connect", "handshake"] }
-comfy-table = "7"
+comfy-table = "8"
 console = "0.16"
 toml = "1.1"
 futures = { workspace = true }
