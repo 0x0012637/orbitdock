@@ -422,7 +422,7 @@ jobs:
       PUBLISH_RELEASE: ${{ needs.metadata.outputs.publish_release }}
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           path: dist
           merge-multiple: true
