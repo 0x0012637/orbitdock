@@ -44,7 +44,7 @@ libc = { workspace = true }
 qrcode = { workspace = true }
 console = "0.16"
 clap_complete = "4"
-refinery = { version = "0.9.0", features = ["rusqlite-bundled"] }
+refinery = { version = "0.10.0", features = ["rusqlite-bundled"] }
 liquid = { workspace = true }
 serde_yaml = { workspace = true }
 chrono = { workspace = true }
